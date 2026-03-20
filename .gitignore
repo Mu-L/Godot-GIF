@@ -2,3 +2,4 @@
 /.vscode
 *.obj
 AGENTS.md
+.sconsign.dblite
