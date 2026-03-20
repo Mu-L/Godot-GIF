@@ -64,6 +64,14 @@ namespace godot {
 		ClassDB::bind_method(D_METHOD("set_stretch_mode", "mode"), &GIFPlayer::set_stretch_mode);
 		ClassDB::bind_method(D_METHOD("get_stretch_mode"), &GIFPlayer::get_stretch_mode);
 		ADD_PROPERTY(PropertyInfo(Variant::INT, "stretch_mode", PROPERTY_HINT_ENUM, "Scale,Tile,Keep,Keep Centered,Keep Aspect,Keep Aspect Centered,Keep Aspect Covered"), "set_stretch_mode", "get_stretch_mode");
+		
+		ClassDB::bind_method(D_METHOD("set_flip_h", "enable"), &GIFPlayer::set_flip_h);
+		ClassDB::bind_method(D_METHOD("is_flipped_h"), &GIFPlayer::is_flipped_h);
+		ADD_PROPERTY(PropertyInfo(Variant::BOOL, "flip_h"), "set_flip_h", "is_flipped_h");
+
+		ClassDB::bind_method(D_METHOD("set_flip_v", "enable"), &GIFPlayer::set_flip_v);
+		ClassDB::bind_method(D_METHOD("is_flipped_v"), &GIFPlayer::is_flipped_v);
+		ADD_PROPERTY(PropertyInfo(Variant::BOOL, "flip_v"), "set_flip_v", "is_flipped_v");
 	}
 
 	GIFPlayer::GIFPlayer() {
@@ -274,6 +282,7 @@ namespace godot {
 		if (gif.is_valid()) {
 			gif->set_frame(0);
 		}
+		update_minimum_size();
 		queue_redraw();
 	}
 
@@ -375,5 +384,31 @@ namespace godot {
 
 	GIFPlayer::StretchMode GIFPlayer::get_stretch_mode() const {
 		return stretch_mode;
+	}
+
+	void GIFPlayer::set_flip_h(bool p_flip) {
+		if (hflip == p_flip) {
+			return;
+		}
+
+		hflip = p_flip;
+		queue_redraw();
+	}
+
+	bool GIFPlayer::is_flipped_h() const {
+		return hflip;
+	}
+
+	void GIFPlayer::set_flip_v(bool p_flip) {
+		if (vflip == p_flip) {
+			return;
+		}
+
+		vflip = p_flip;
+		queue_redraw();
+	}
+
+	bool GIFPlayer::is_flipped_v() const {
+		return vflip;
 	}
 }

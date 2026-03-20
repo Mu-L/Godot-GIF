@@ -3,11 +3,17 @@
 
 #include "gif_utils.hpp"
 
+#include <mutex>
+
 namespace godot {
 	class Image;
 
 	class GIFReader : public RefCounted {
 		GDCLASS(GIFReader, RefCounted)
+
+	private:
+		// 静态互斥锁保护 giflib 的全局状态（giflib 不是线程安全的）
+		static std::mutex giflib_mutex;
 
 	public:
 		// GIF 错误码
@@ -53,7 +59,7 @@ namespace godot {
 
 		// 文件
 		GIFError open(const String& p_path);							// 打开文件
-		GIFError open_from_buffer(const PackedByteArray& p_data);		// 从内存数据打开 (支持从网络/压缩包加载)
+		GIFError open_from_buffer(const PackedByteArray& p_buffer);		// 从内存数据打开 (支持从网络/压缩包加载)
 		GIFError close();												// 关闭文件
 
 		// 常规

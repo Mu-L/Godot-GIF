@@ -47,6 +47,12 @@
     <ClInclude Include="src\node\gif_player.h">
       <Filter>Header Files\node</Filter>
     </ClInclude>
+    <ClInclude Include="src\core\gif_writer.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\editor\resource_preview_gif_texture.h">
+      <Filter>Header Files\editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\core\register_types.cpp">
@@ -63,6 +69,12 @@
     </ClCompile>
     <ClCompile Include="src\node\gif_player.cpp">
       <Filter>Source Files\node</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\gif_writer.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\editor\resource_preview_gif_texture.cpp">
+      <Filter>Source Files\editor</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

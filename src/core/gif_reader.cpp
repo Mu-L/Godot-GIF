@@ -10,6 +10,8 @@
 #endif
 
 namespace godot {
+	// 定义静态互斥锁
+	std::mutex GIFReader::giflib_mutex;
 	void GIFReader::_bind_methods() {
 		BIND_ENUM_CONSTANT(SUCCEEDED);
 		BIND_ENUM_CONSTANT(OPEN_FAILED);
@@ -34,6 +36,7 @@ namespace godot {
 		ClassDB::bind_method(D_METHOD("open", "path"), &GIFReader::open);
 		ClassDB::bind_method(D_METHOD("open_from_buffer", "buffer"), &GIFReader::open_from_buffer);
 		ClassDB::bind_method(D_METHOD("close"), &GIFReader::close);
+
 		ClassDB::bind_method(D_METHOD("get_size"), &GIFReader::get_size);
 		ClassDB::bind_method(D_METHOD("get_color_resolution"), &GIFReader::get_color_resolution);
 		ClassDB::bind_method(D_METHOD("get_background_color"), &GIFReader::get_background_color);
@@ -75,6 +78,9 @@ namespace godot {
 			close();
 		}
 
+		// 加锁保护 giflib 调用
+		std::lock_guard<std::mutex> lock(giflib_mutex);
+
 		int err;
 
 #ifdef _WIN32
@@ -111,6 +117,9 @@ namespace godot {
 		if (p_buffer.is_empty()) {
 			return OPEN_FAILED;
 		}
+
+		// 加锁保护 giflib 调用（giflib 不是线程安全的）
+		std::lock_guard<std::mutex> lock(giflib_mutex);
 
 		// 保存内存数据
 		mem_data = p_buffer;
