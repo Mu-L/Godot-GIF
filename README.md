@@ -5,10 +5,8 @@
 <h1 align="center">Godot-GIF</h1>
 
 <p align="center">
-  Godot GDExtension for GIF image reading and writing, powered by giflib.
+  A lightweight GIF parser and writer for Godot Engine
 </p>
-
----
 
 ## Overview
 
