@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="GIFTexture" inherits="Texture2D" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Texture2D subclass for displaying animated GIF images.
+	</brief_description>
+	<description>
+		GIFTexture extends [Texture2D] to provide animated GIF support as a Godot resource. Parses GIF data and provides access to individual frames as [ImageTexture] objects.
+		Can be assigned directly to [TextureRect] and other nodes that accept Texture2D.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="get_current_texture">
+			<return type="ImageTexture" />
+			<description>
+				Returns the [ImageTexture] for the currently selected frame.
+			</description>
+		</method>
+		<method name="get_data">
+			<return type="PackedByteArray" />
+			<description>
+				Returns the raw GIF data as a byte array.
+			</description>
+		</method>
+		<method name="get_frame">
+			<return type="int" />
+			<description>
+				Returns the currently selected frame index.
+			</description>
+		</method>
+		<method name="get_frame_count">
+			<return type="int" />
+			<description>
+				Returns the total number of frames in the GIF.
+			</description>
+		</method>
+		<method name="get_frame_delay">
+			<return type="float" />
+			<param index="0" name="frame" type="int" />
+			<description>
+				Returns the delay time in seconds for the specified frame.
+			</description>
+		</method>
+		<method name="get_frame_texture">
+			<return type="ImageTexture" />
+			<param index="0" name="frame" type="int" />
+			<description>
+				Returns the [ImageTexture] for the specified frame index.
+			</description>
+		</method>
+		<method name="get_loop_count">
+			<return type="int" />
+			<description>
+				Returns the loop count from the GIF metadata. 0 means infinite loop.
+			</description>
+		</method>
+		<method name="get_total_duration">
+			<return type="float" />
+			<description>
+				Returns the total duration of the animation in seconds.
+			</description>
+		</method>
+		<method name="load_from_buffer" qualifiers="static">
+			<return type="GIFTexture" />
+			<param index="0" name="buffer" type="PackedByteArray" />
+			<description>
+				Static method to load a GIF from a memory buffer.
+			</description>
+		</method>
+		<method name="load_from_file" qualifiers="static">
+			<return type="GIFTexture" />
+			<param index="0" name="path" type="String" />
+			<description>
+				Static method to load a GIF from a file path.
+			</description>
+		</method>
+		<method name="set_data">
+			<return type="void" />
+			<param index="0" name="data" type="PackedByteArray" />
+			<description>
+				Sets the GIF data and parses all frames. Replaces any existing data.
+			</description>
+		</method>
+		<method name="set_frame">
+			<return type="void" />
+			<param index="0" name="frame" type="int" />
+			<description>
+				Sets the currently displayed frame index. Used by [GIFPlayer] and can be used for manual frame control.
+			</description>
+		</method>
+	</methods>
+</class>

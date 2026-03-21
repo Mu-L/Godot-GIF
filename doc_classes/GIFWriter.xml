@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="GIFWriter" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Writes GIF files from image data.
+	</brief_description>
+	<description>
+		GIFWriter provides methods to create GIF files from [Image] objects. Supports both incremental frame-by-frame writing and one-shot complete GIF creation.
+		Features include customizable frame delays, loop counts, transparency, disposal methods, and color quantization.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="add_comment">
+			<return type="int" enum="GIFWriter.GIFError" />
+			<param index="0" name="comment" type="String" />
+			<description>
+				Adds a comment block to the GIF. Must be called after setting canvas size but before closing.
+			</description>
+		</method>
+		<method name="begin_frame">
+			<return type="int" enum="GIFWriter.GIFError" />
+			<param index="0" name="left" type="int" />
+			<param index="1" name="top" type="int" />
+			<param index="2" name="width" type="int" />
+			<param index="3" name="height" type="int" />
+			<param index="4" name="interlace" type="bool" default="false" />
+			<description>
+				Begins writing a new frame with the specified position and dimensions. Must be followed by [method write_frame_pixels] or [method write_frame_image], then [method end_frame].
+			</description>
+		</method>
+		<method name="close">
+			<return type="int" enum="GIFWriter.GIFError" />
+			<description>
+				Closes the file or buffer and completes the GIF writing. Must be called to finalize the output.
+			</description>
+		</method>
+		<method name="end_frame">
+			<return type="int" enum="GIFWriter.GIFError" />
+			<description>
+				Ends the current frame writing. Must be called after writing frame data before beginning another frame.
+			</description>
+		</method>
+		<method name="get_canvas_size">
+			<return type="Vector2i" />
+			<description>
+				Returns the canvas size set by [method set_canvas_size].
+			</description>
+		</method>
+		<method name="get_frame_count">
+			<return type="int" />
+			<description>
+				Returns the number of frames written so far.
+			</description>
+		</method>
+		<method name="get_output_buffer">
+			<return type="PackedByteArray" />
+			<description>
+				Returns the memory buffer containing the GIF data. Only valid after calling [method open_from_buffer] and [method close].
+			</description>
+		</method>
+		<method name="open">
+			<return type="int" enum="GIFWriter.GIFError" />
+			<param index="0" name="path" type="String" />
+			<description>
+				Opens a file for writing. The file will be overwritten if it exists.
+			</description>
+		</method>
+		<method name="open_from_buffer">
+			<return type="int" enum="GIFWriter.GIFError" />
+			<description>
+				Opens a memory buffer for writing. Use [method get_output_buffer] to retrieve the result after closing.
+			</description>
+		</method>
+		<method name="save_to_buffer" qualifiers="static">
+			<return type="Dictionary" />
+			<param index="0" name="images" type="Image[]" />
+			<param index="1" name="delays" type="PackedInt32Array" />
+			<param index="2" name="loop_count" type="int" default="0" />
+			<param index="3" name="quantize" type="bool" default="true" />
+			<description>
+				Static method to write a GIF to a memory buffer. Returns a Dictionary with [code]error[/code] (GIFError) and [code]data[/code] (PackedByteArray).
+			</description>
+		</method>
+		<method name="save_to_file" qualifiers="static">
+			<return type="int" enum="GIFWriter.GIFError" />
+			<param index="0" name="path" type="String" />
+			<param index="1" name="images" type="Image[]" />
+			<param index="2" name="delays" type="PackedInt32Array" />
+			<param index="3" name="loop_count" type="int" default="0" />
+			<param index="4" name="quantize" type="bool" default="true" />
+			<description>
+				Static method to save a GIF file from an array of images. Delays are specified in milliseconds.
+			</description>
+		</method>
+		<method name="set_canvas_size">
+			<return type="int" enum="GIFWriter.GIFError" />
+			<param index="0" name="width" type="int" />
+			<param index="1" name="height" type="int" />
+			<param index="2" name="background_color" type="int" default="0" />
+			<description>
+				Sets the canvas size (screen descriptor). Must be called before writing the first frame and can only be called once.
+			</description>
+		</method>
+		<method name="set_color_resolution">
+			<return type="int" enum="GIFWriter.GIFError" />
+			<param index="0" name="bits" type="int" />
+			<description>
+				Sets the color resolution in bits (1-8, default 8). Must be called before writing frames.
+			</description>
+		</method>
+		<method name="set_disposal_method">
+			<return type="int" enum="GIFWriter.GIFError" />
+			<param index="0" name="method" type="int" enum="GIFWriter.DisposalMethod" />
+			<description>
+				Sets the disposal method for the current frame.
+			</description>
+		</method>
+		<method name="set_frame_delay">
+			<return type="int" enum="GIFWriter.GIFError" />
+			<param index="0" name="delay_ms" type="int" />
+			<description>
+				Sets the delay time in milliseconds for the current frame.
+			</description>
+		</method>
+		<method name="set_frame_palette">
+			<return type="int" enum="GIFWriter.GIFError" />
+			<param index="0" name="palette" type="PackedColorArray" />
+			<description>
+				Sets the local color palette for the current frame. Maximum 256 colors.
+			</description>
+		</method>
+		<method name="set_global_palette">
+			<return type="int" enum="GIFWriter.GIFError" />
+			<param index="0" name="palette" type="PackedColorArray" />
+			<description>
+				Sets the global color palette. If not set, each frame must have its own local palette.
+			</description>
+		</method>
+		<method name="set_loop_count">
+			<return type="int" enum="GIFWriter.GIFError" />
+			<param index="0" name="loop_count" type="int" />
+			<description>
+				Sets the loop count using the Netscape application extension. 0 means infinite loop.
+			</description>
+		</method>
+		<method name="set_transparent_color">
+			<return type="int" enum="GIFWriter.GIFError" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Sets the transparent color index for the current frame. Use -1 for no transparency.
+			</description>
+		</method>
+		<method name="write_frame_image">
+			<return type="int" enum="GIFWriter.GIFError" />
+			<param index="0" name="image" type="Image" />
+			<param index="1" name="quantize" type="bool" default="true" />
+			<description>
+				Writes frame data from an [Image] object. Automatically quantizes colors if [param quantize] is true.
+			</description>
+		</method>
+		<method name="write_frame_pixels">
+			<return type="int" enum="GIFWriter.GIFError" />
+			<param index="0" name="indices" type="PackedByteArray" />
+			<description>
+				Writes raw pixel indices for the current frame. Data length must equal width * height.
+			</description>
+		</method>
+		<method name="write_gif">
+			<return type="int" enum="GIFWriter.GIFError" />
+			<param index="0" name="images" type="Image[]" />
+			<param index="1" name="delays" type="PackedInt32Array" />
+			<param index="2" name="loop_count" type="int" default="0" />
+			<param index="3" name="quantize" type="bool" default="true" />
+			<description>
+				One-shot method to write all frames. Must be called after opening a file or buffer and setting canvas size.
+			</description>
+		</method>
+	</methods>
+	<constants>
+		<constant name="CLOSE_FAILED" value="8" enum="GIFError">
+			Failed to close the file.
+		</constant>
+		<constant name="DATA_TOO_BIG" value="5" enum="GIFError">
+			Pixel data size exceeds width * height.
+		</constant>
+		<constant name="DISPOSAL_METHOD_BACKGROUND" value="2" enum="DisposalMethod">
+			Restore to background color before rendering next frame.
+		</constant>
+		<constant name="DISPOSAL_METHOD_DO_NOT" value="1" enum="DisposalMethod">
+			Do not dispose, keep current frame visible.
+		</constant>
+		<constant name="DISPOSAL_METHOD_PREVIOUS" value="3" enum="DisposalMethod">
+			Restore to previous frame before rendering next frame.
+		</constant>
+		<constant name="DISPOSAL_METHOD_UNSPECIFIED" value="0" enum="DisposalMethod">
+			Disposal method not specified.
+		</constant>
+		<constant name="DISK_IS_FULL" value="7" enum="GIFError">
+			Write failed, disk may be full.
+		</constant>
+		<constant name="HAS_IMAG_DSCR" value="3" enum="GIFError">
+			Image descriptor is already active.
+		</constant>
+		<constant name="HAS_SCRN_DSCR" value="2" enum="GIFError">
+			Screen descriptor already set, attempted to set second one.
+		</constant>
+		<constant name="INVALID_DIMENSIONS" value="10" enum="GIFError">
+			Invalid dimensions (0 or exceeds 65535).
+		</constant>
+		<constant name="NO_COLOR_MAP" value="4" enum="GIFError">
+			No global or local color map set.
+		</constant>
+		<constant name="NO_FILE_OPEN" value="11" enum="GIFError">
+			No file is currently open.
+		</constant>
+		<constant name="NO_IMAG_DSCR" value="14" enum="GIFError">
+			No image descriptor set.
+		</constant>
+		<constant name="NO_SCRN_DSCR" value="13" enum="GIFError">
+			No screen descriptor set.
+		</constant>
+		<constant name="NOT_ENOUGH_MEM" value="6" enum="GIFError">
+			Not enough memory to allocate required structures.
+		</constant>
+		<constant name="NOT_WRITEABLE" value="9" enum="GIFError">
+			File is not open for writing.
+		</constant>
+		<constant name="OPEN_FAILED" value="1" enum="GIFError">
+			Failed to open the specified file.
+		</constant>
+		<constant name="PALETTE_TOO_LARGE" value="12" enum="GIFError">
+			Palette contains more than 256 colors.
+		</constant>
+		<constant name="SUCCEEDED" value="0" enum="GIFError">
+			Operation completed successfully.
+		</constant>
+		<constant name="WRITER_FAILED" value="1" enum="GIFError">
+			Failed to write to file.
+		</constant>
+	</constants>
+</class>

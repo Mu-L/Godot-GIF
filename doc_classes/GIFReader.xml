@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="GIFReader" inherits="RefCounted" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Reads GIF files and extracts frame data.
+	</brief_description>
+	<description>
+		GIFReader provides methods to open GIF files from disk or memory, extract frames as [Image] objects, and retrieve metadata such as delays, disposal methods, and loop count.
+		Supports both file-based and buffer-based input for flexible loading scenarios including network and archive sources.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="close">
+			<return type="int" enum="GIFReader.GIFError" />
+			<description>
+				Closes the currently opened GIF file or buffer. Returns [constant GIFReader.SUCCEEDED] on success.
+			</description>
+		</method>
+		<method name="get_aspect_byte">
+			<return type="int" />
+			<description>
+				Returns the pixel aspect ratio byte from the GIF header.
+			</description>
+		</method>
+		<method name="get_background_color">
+			<return type="Color" />
+			<description>
+				Returns the background color specified in the GIF global color table.
+			</description>
+		</method>
+		<method name="get_color_map">
+			<return type="Dictionary" />
+			<description>
+				Returns the global color map as a Dictionary with [code]colors[/code] (PackedColorArray) and [code]count[/code] (int).
+			</description>
+		</method>
+		<method name="get_color_resolution">
+			<return type="int" />
+			<description>
+				Returns the color resolution bits specified in the GIF header.
+			</description>
+		</method>
+		<method name="get_comments">
+			<return type="PackedStringArray" />
+			<description>
+				Returns all comment text blocks found in the GIF file.
+			</description>
+		</method>
+		<method name="get_disposal_method">
+			<return type="int" enum="GIFReader.DisposalMethod" />
+			<param index="0" name="frame_index" type="int" />
+			<description>
+				Returns the disposal method for the specified frame, indicating how the frame should be cleared before the next frame is rendered.
+			</description>
+		</method>
+		<method name="get_frame_delay">
+			<return type="int" />
+			<param index="0" name="frame_index" type="int" />
+			<description>
+				Returns the delay time in milliseconds for the specified frame.
+			</description>
+		</method>
+		<method name="get_frame_gcb">
+			<return type="Dictionary" />
+			<param index="0" name="frame_index" type="int" />
+			<description>
+				Returns the Graphics Control Block data for the specified frame as a Dictionary containing delay, disposal method, and transparent color index.
+			</description>
+		</method>
+		<method name="get_frame_raw_data">
+			<return type="GIFReader.GIFFrameRawData" />
+			<param index="0" name="frame_index" type="int" />
+			<description>
+				Returns raw frame data including palette indices, palette colors, and metadata. Useful for custom compositing.
+			</description>
+		</method>
+		<method name="get_global_metadata">
+			<return type="Dictionary" />
+			<description>
+				Returns global GIF metadata including version, canvas size, background color, and aspect ratio.
+			</description>
+		</method>
+		<method name="get_image">
+			<return type="Image" />
+			<param index="0" name="frame_index" type="int" default="0" />
+			<description>
+				Returns the specified frame as an [Image] object. Frame index starts at 0.
+			</description>
+		</method>
+		<method name="get_image_count">
+			<return type="int" />
+			<description>
+				Returns the total number of frames in the GIF.
+			</description>
+		</method>
+		<method name="get_loop_count">
+			<return type="int" />
+			<description>
+				Returns the loop count specified in the Netscape application extension. 0 means infinite loop.
+			</description>
+		</method>
+		<method name="get_saved_images">
+			<return type="Image[]" />
+			<description>
+				Returns all frames as an array of [Image] objects.
+			</description>
+		</method>
+		<method name="get_size">
+			<return type="Vector2i" />
+			<description>
+				Returns the virtual canvas size of the GIF as Vector2i(width, height).
+			</description>
+		</method>
+		<method name="open">
+			<return type="int" enum="GIFReader.GIFError" />
+			<param index="0" name="path" type="String" />
+			<description>
+				Opens a GIF file from the specified path. Returns an error code indicating success or failure.
+			</description>
+		</method>
+		<method name="open_from_buffer">
+			<return type="int" enum="GIFReader.GIFError" />
+			<param index="0" name="buffer" type="PackedByteArray" />
+			<description>
+				Opens a GIF from a memory buffer. Useful for loading from network downloads or archive files.
+			</description>
+		</method>
+	</methods>
+	<constants>
+		<constant name="CLOSE_FAILED" value="110" enum="GIFError">
+			Failed to close the file.
+		</constant>
+		<constant name="DATA_TOO_BIG" value="108" enum="GIFError">
+			Pixel data size exceeds width * height.
+		</constant>
+		<constant name="DISPOSAL_METHOD_BACKGROUND" value="2" enum="DisposalMethod">
+			Restore to background color before rendering next frame.
+		</constant>
+		<constant name="DISPOSAL_METHOD_DO_NOT" value="1" enum="DisposalMethod">
+			Do not dispose, keep current frame visible.
+		</constant>
+		<constant name="DISPOSAL_METHOD_PREVIOUS" value="3" enum="DisposalMethod">
+			Restore to previous frame before rendering next frame.
+		</constant>
+		<constant name="DISPOSAL_METHOD_UNSPECIFIED" value="0" enum="DisposalMethod">
+			Disposal method not specified in the GIF.
+		</constant>
+		<constant name="EOF_TOO_SOON" value="113" enum="GIFError">
+			Unexpected end of file encountered.
+		</constant>
+		<constant name="IMAGE_DEFECT" value="112" enum="GIFError">
+			Image data is defective or corrupted.
+		</constant>
+		<constant name="NO_COLOR_MAP" value="106" enum="GIFError">
+			No global or local color map found.
+		</constant>
+		<constant name="NO_IMAG_DSCR" value="105" enum="GIFError">
+			No image descriptor found.
+		</constant>
+		<constant name="NO_SCRN_DSCR" value="104" enum="GIFError">
+			No screen descriptor found.
+		</constant>
+		<constant name="NOT_ENOUGH_MEM" value="109" enum="GIFError">
+			Not enough memory to allocate required structures.
+		</constant>
+		<constant name="NOT_GIF_FILE" value="103" enum="GIFError">
+			File is not a valid GIF file.
+		</constant>
+		<constant name="NOT_READABLE" value="111" enum="GIFError">
+			File is not open for reading.
+		</constant>
+		<constant name="OPEN_FAILED" value="101" enum="GIFError">
+			Failed to open the specified file.
+		</constant>
+		<constant name="READ_FAILED" value="102" enum="GIFError">
+			Failed to read from file.
+		</constant>
+		<constant name="SUCCEEDED" value="0" enum="GIFError">
+			Operation completed successfully.
+		</constant>
+		<constant name="WRONG_RECORD" value="107" enum="GIFError">
+			Wrong record type encountered.
+		</constant>
+	</constants>
+</class>

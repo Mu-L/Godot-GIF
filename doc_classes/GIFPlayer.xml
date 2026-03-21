@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="GIFPlayer" inherits="Control" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Control node for animated GIF playback.
+	</brief_description>
+	<description>
+		GIFPlayer is a [Control] node that displays and plays animated GIFs. Provides playback controls, multiple play modes, and display options similar to [TextureRect].
+		Automatically advances frames based on the GIF's delay timing.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="get_expand_mode">
+			<return type="int" enum="GIFPlayer.ExpandMode" />
+			<description>
+				Returns the current expand mode.
+			</description>
+		</method>
+		<method name="get_frame">
+			<return type="int" />
+			<description>
+				Returns the currently displayed frame index.
+			</description>
+		</method>
+		<method name="get_frame_count">
+			<return type="int" />
+			<description>
+				Returns the total number of frames in the loaded GIF.
+			</description>
+		</method>
+		<method name="get_gif">
+			<return type="GIFTexture" />
+			<description>
+				Returns the currently loaded [GIFTexture].
+			</description>
+		</method>
+		<method name="get_loop_count">
+			<return type="int" />
+			<description>
+				Returns the loop count setting. -1 uses the GIF's default loop count.
+			</description>
+		</method>
+		<method name="get_play_mode">
+			<return type="int" enum="GIFPlayer.PlayMode" />
+			<description>
+				Returns the current play mode.
+			</description>
+		</method>
+		<method name="get_speed_scale">
+			<return type="float" />
+			<description>
+				Returns the current playback speed multiplier.
+			</description>
+		</method>
+		<method name="get_stretch_mode">
+			<return type="int" enum="GIFPlayer.StretchMode" />
+			<description>
+				Returns the current stretch mode.
+			</description>
+		</method>
+		<method name="is_flipped_h">
+			<return type="bool" />
+			<description>
+				Returns true if the GIF is horizontally flipped.
+			</description>
+		</method>
+		<method name="is_flipped_v">
+			<return type="bool" />
+			<description>
+				Returns true if the GIF is vertically flipped.
+			</description>
+		</method>
+		<method name="is_paused">
+			<return type="bool" />
+			<description>
+				Returns true if playback is paused.
+			</description>
+		</method>
+		<method name="is_playing">
+			<return type="bool" />
+			<description>
+				Returns true if currently playing (not stopped).
+			</description>
+		</method>
+		<method name="play">
+			<return type="void" />
+			<description>
+				Starts playback from the beginning. Resets the frame position and loop counter.
+			</description>
+		</method>
+		<method name="set_expand_mode">
+			<return type="void" />
+			<param index="0" name="mode" type="int" enum="GIFPlayer.ExpandMode" />
+			<description>
+				Sets how the control size relates to the GIF dimensions.
+			</description>
+		</method>
+		<method name="set_flip_h">
+			<return type="void" />
+			<param index="0" name="enable" type="bool" />
+			<description>
+				Enables or disables horizontal flipping of the GIF.
+			</description>
+		</method>
+		<method name="set_flip_v">
+			<return type="void" />
+			<param index="0" name="enable" type="bool" />
+			<description>
+				Enables or disables vertical flipping of the GIF.
+			</description>
+		</method>
+		<method name="set_frame">
+			<return type="void" />
+			<param index="0" name="frame" type="int" />
+			<description>
+				Sets the current frame to display. Does not affect playback state.
+			</description>
+		</method>
+		<method name="set_gif">
+			<return type="void" />
+			<param index="0" name="gif" type="GIFTexture" />
+			<description>
+				Sets the [GIFTexture] to display and play. Automatically resets playback to frame 0.
+			</description>
+		</method>
+		<method name="set_loop_count">
+			<return type="void" />
+			<param index="0" name="count" type="int" />
+			<description>
+				Sets the number of times to loop the animation. 0 for infinite, -1 to use GIF default.
+			</description>
+		</method>
+		<method name="set_paused">
+			<return type="void" />
+			<param index="0" name="enable" type="bool" />
+			<description>
+				Pauses or resumes playback. When paused, the current frame remains displayed.
+			</description>
+		</method>
+		<method name="set_play_mode">
+			<return type="void" />
+			<param index="0" name="mode" type="int" enum="GIFPlayer.PlayMode" />
+			<description>
+				Sets the playback mode: forward, backward, ping-pong, or random.
+			</description>
+		</method>
+		<method name="set_playing">
+			<return type="void" />
+			<param index="0" name="enable" type="bool" />
+			<description>
+				Sets whether playback is active. When set to false, acts like stop().
+			</description>
+		</method>
+		<method name="set_speed_scale">
+			<return type="void" />
+			<param index="0" name="speed" type="float" />
+			<description>
+				Sets the playback speed multiplier. 1.0 is normal speed, 2.0 is double speed, 0.5 is half speed.
+			</description>
+		</method>
+		<method name="set_stretch_mode">
+			<return type="void" />
+			<param index="0" name="mode" type="int" enum="GIFPlayer.StretchMode" />
+			<description>
+				Sets how the GIF is scaled to fit the control rect.
+			</description>
+		</method>
+		<method name="stop">
+			<return type="void" />
+			<description>
+				Stops playback and resets to the first frame.
+			</description>
+		</method>
+	</methods>
+	<constants>
+		<constant name="EXPAND_FIT_HEIGHT" value="4" enum="ExpandMode">
+			Expand to fit height, ignoring width constraints.
+		</constant>
+		<constant name="EXPAND_FIT_HEIGHT_PROPORTIONAL" value="5" enum="ExpandMode">
+			Expand to fit height proportionally.
+		</constant>
+		<constant name="EXPAND_FIT_WIDTH" value="2" enum="ExpandMode">
+			Expand to fit width, ignoring height constraints.
+		</constant>
+		<constant name="EXPAND_FIT_WIDTH_PROPORTIONAL" value="3" enum="ExpandMode">
+			Expand to fit width proportionally.
+		</constant>
+		<constant name="EXPAND_IGNORE_SIZE" value="1" enum="ExpandMode">
+			Ignore the GIF's original size.
+		</constant>
+		<constant name="EXPAND_KEEP_SIZE" value="0" enum="ExpandMode">
+			Keep the GIF's original size.
+		</constant>
+		<constant name="PLAY_MODE_BACKWARD" value="1" enum="PlayMode">
+			Play frames in reverse order.
+		</constant>
+		<constant name="PLAY_MODE_FORWARD" value="0" enum="PlayMode">
+			Play frames in order.
+		</constant>
+		<constant name="PLAY_MODE_PINGPONG" value="2" enum="PlayMode">
+			Play forward then backward repeatedly.
+		</constant>
+		<constant name="PLAY_MODE_RANDOM" value="3" enum="PlayMode">
+			Play frames in random order.
+		</constant>
+		<constant name="STRETCH_KEEP" value="2" enum="StretchMode">
+			Keep the original size, position at top-left.
+		</constant>
+		<constant name="STRETCH_KEEP_ASPECT" value="4" enum="StretchMode">
+			Scale to fit while preserving aspect ratio. May leave empty space.
+		</constant>
+		<constant name="STRETCH_KEEP_ASPECT_CENTERED" value="5" enum="StretchMode">
+			Scale to fit while preserving aspect ratio, centered.
+		</constant>
+		<constant name="STRETCH_KEEP_ASPECT_COVERED" value="6" enum="StretchMode">
+			Scale to cover the entire rect while preserving aspect ratio. May crop the image.
+		</constant>
+		<constant name="STRETCH_KEEP_CENTERED" value="3" enum="StretchMode">
+			Keep the original size, centered in the rect.
+		</constant>
+		<constant name="STRETCH_SCALE" value="0" enum="StretchMode">
+			Stretch to fill the entire control rect.
+		</constant>
+		<constant name="STRETCH_TILE" value="1" enum="StretchMode">
+			Tile the image to fill the rect.
+		</constant>
+	</constants>
+</class>
