@@ -32,7 +32,6 @@ namespace godot {
 			return Ref<Texture2D>();
 		}
 
-		// 调整尺寸
 		Vector2i img_size = img->get_size();
 		if (img_size.x > p_size.x || img_size.y > p_size.y) {
 			float scale = MIN((float)p_size.x / img_size.x, (float)p_size.y / img_size.y);

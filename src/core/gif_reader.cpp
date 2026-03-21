@@ -118,7 +118,7 @@ namespace godot {
 			return OPEN_FAILED;
 		}
 
-		// 加锁保护 giflib 调用（giflib 不是线程安全的）
+		// 加锁保护 giflib 调用 (giflib 不是线程安全的)
 		std::lock_guard<std::mutex> lock(giflib_mutex);
 
 		// 保存内存数据

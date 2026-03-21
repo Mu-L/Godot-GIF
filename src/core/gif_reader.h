@@ -12,8 +12,7 @@ namespace godot {
 		GDCLASS(GIFReader, RefCounted)
 
 	private:
-		// 静态互斥锁保护 giflib 的全局状态（giflib 不是线程安全的）
-		static std::mutex giflib_mutex;
+		static std::mutex giflib_mutex;									// 静态互斥锁保护 giflib 的全局状态 (giflib 不是线程安全的)
 
 	public:
 		// GIF 错误码

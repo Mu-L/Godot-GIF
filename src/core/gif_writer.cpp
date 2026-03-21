@@ -175,9 +175,9 @@ namespace godot {
 
 		// 写入循环参数子块
 		unsigned char params[3];
-		params[0] = 0x01;  										// 循环子块标识
-		params[1] = p_loop_count & 0xff;						// 循环次数低字节
-		params[2] = (p_loop_count >> 8) & 0xff;					// 循环次数高字节
+		params[0] = 0x01;  												// 循环子块标识
+		params[1] = p_loop_count & 0xff;								// 循环次数低字节
+		params[2] = (p_loop_count >> 8) & 0xff;							// 循环次数高字节
 		
 		if (EGifPutExtensionBlock(file_type, 3, params) == GIF_ERROR) {
 			return WRITER_FAILED;
@@ -198,7 +198,7 @@ namespace godot {
 		int color_count = p_palette.size();
 		if (color_count > 256) color_count = 256;
 
-		// 创建调色板对象（自动计算位深度）
+		// 创建调色板对象 (自动计算位深度)
 		ColorMapObject* color_map = GifMakeMapObject(color_count, nullptr);
 		if (!color_map) return NOT_ENOUGH_MEM;
 
@@ -223,7 +223,7 @@ namespace godot {
 
 	GIFWriter::GIFError GIFWriter::set_color_resolution(const int p_bits) {
 		if (!file_type) return NO_FILE_OPEN;
-		if (has_screen_desc) return HAS_SCRN_DSCR;  // 屏幕描述符已写入，无法修改
+		if (has_screen_desc) return HAS_SCRN_DSCR;						// 屏幕描述符已写入，无法修改
 		
 		// 颜色分辨率已存储，会在 set_canvas_size 时通过 EGifPutScreenDesc 应用
 		// 这里只做有效性检查
@@ -240,7 +240,7 @@ namespace godot {
 		const bool p_interlace
 	) {
 		if (!file_type) return NO_FILE_OPEN;
-		if (has_image_desc) return HAS_IMAG_DSCR;  // 图像描述符仍在激活
+		if (has_image_desc) return HAS_IMAG_DSCR;						// 图像描述符仍在激活
 		if (p_width <= 0 || p_width > 65535 || p_height <= 0 || p_height > 65535) {
 			return INVALID_DIMENSIONS;
 		}
@@ -589,7 +589,7 @@ namespace godot {
 
 		if (len == 0) return SUCCEEDED;
 
-		// 使用 EGifPutComment 写入注释（支持多子块）
+		// 使用 EGifPutComment 写入注释 (支持多子块)
 		if (EGifPutComment(file_type, comment_utf8.get_data()) == GIF_ERROR) {
 			return WRITER_FAILED;
 		}
