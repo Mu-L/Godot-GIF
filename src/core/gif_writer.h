@@ -4,9 +4,9 @@
 #include "gif_utils.hpp"
 
 #include <godot_cpp/classes/image.hpp>
+#include <godot_cpp/classes/file_access.hpp>
 
 namespace godot {
-
 	class GIFWriter : public RefCounted {
 		GDCLASS(GIFWriter, RefCounted)
 
@@ -61,6 +61,9 @@ namespace godot {
 		DisposalMethod frame_disposal = DISPOSAL_METHOD_UNSPECIFIED;
 		int frame_transparent_index = -1;								// -1 表示无透明色
 		ColorMapObject* frame_color_map = nullptr;
+
+		Ref<FileAccess> fa; // 用于保存打开的文件句柄
+		static int _file_write_callback(GifFileType* gif, const GifByteType* bytes, int size);
 
 	protected:
 		static void _bind_methods();

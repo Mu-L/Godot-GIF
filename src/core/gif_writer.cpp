@@ -1,11 +1,5 @@
 #include "gif_writer.h"
 
-#ifdef _WIN32
-#include <fcntl.h>
-#include <io.h>
-#include <stdio.h>
-#endif
-
 namespace godot {
 	void GIFWriter::_bind_methods() {
 		BIND_ENUM_CONSTANT(SUCCEEDED);
@@ -53,33 +47,6 @@ namespace godot {
 		close();
 	}
 
-	GIFWriter::GIFError GIFWriter::open(const String& p_path) {
-		if (file_type) {
-			close();
-		}
-		int err = 0;
-
-#ifdef _WIN32
-		// Windows 需要使用宽字符路径来支持中文
-		Char16String path_utf16 = p_path.utf16();
-		FILE* file = _wfopen((const wchar_t*)path_utf16.get_data(), L"wb");
-		if (!file) {
-			return OPEN_FAILED;
-		}
-		int fd = _fileno(file);
-		file_type = EGifOpenFileHandle(fd, &err);
-		// 注意: EGifOpenFileHandle 不会关闭文件句柄，我们需要自己管理
-		// 但 giflib 会在 EGifCloseFile 时关闭句柄
-#else
-		CharString path_utf8 = p_path.utf8();
-		// TestExistence = false 表示不检查文件是否已存在，允许覆盖
-		file_type = EGifOpenFileName(path_utf8.get_data(), false, &err);
-#endif
-		if (!file_type) return static_cast<GIFError>(err);
-
-		return SUCCEEDED;
-	}
-
 	int GIFWriter::_mem_output_func(GifFileType* gif, const GifByteType* bytes, int size) {
 		GIFWriter* writer = static_cast<GIFWriter*>(gif->UserData);
 		if (!writer || !bytes || size <= 0) return 0;
@@ -91,6 +58,39 @@ namespace godot {
 		return size;
 	}
 
+	int GIFWriter::_file_write_callback(GifFileType* gif, const GifByteType* bytes, int size) {
+		GIFWriter* writer = static_cast<GIFWriter*>(gif->UserData);
+		if (!writer || writer->fa.is_null() || !bytes || size <= 0) return 0;
+
+		writer->fa->store_buffer(bytes, size);
+		return size;
+	}
+
+	GIFWriter::GIFError GIFWriter::open(const String& p_path) {
+		if (file_type) {
+			close();
+		}
+
+		// 使用 Godot 的 FileAccess 打开文件 (支持中文和虚拟路径)
+		fa = FileAccess::open(p_path, FileAccess::WRITE);
+		if (fa.is_null()) {
+			return OPEN_FAILED;
+		}
+
+		int err = 0;
+		// 使用 EGifOpen 绑定自定义的回调函数
+		// 注意: 这里的第一个参数是 UserData，我们传 this
+		file_type = EGifOpen(this, _file_write_callback, &err);
+
+		if (!file_type) {
+			// 失败则释放文件
+			fa.unref();
+			return static_cast<GIFError>(err);
+		}
+
+		return SUCCEEDED;
+	}
+
 	GIFWriter::GIFError GIFWriter::open_from_buffer() {
 		if (file_type) {
 			close();
@@ -100,33 +100,42 @@ namespace godot {
 
 		// 使用 EGifOpen 自定义输出函数写入到内存
 		file_type = EGifOpen(this, _mem_output_func, &err);
-		if (!file_type) return static_cast<GIFError>(err);
-
+		if (!file_type) {
+			return OPEN_FAILED;
+		}
+		
 		return SUCCEEDED;
 	}
 
 	GIFWriter::GIFError GIFWriter::close() {
-		if (!file_type) {
-			return SUCCEEDED;
-		}
+		if (!file_type) return SUCCEEDED;
 
 		int err = 0;
-		if (EGifCloseFile(file_type, &err) == GIF_ERROR) {
-			file_type = nullptr;
-			return CLOSE_FAILED;
+		// 这会触发最后的结尾写入
+		EGifCloseFile(file_type, &err);
+		file_type = nullptr;
+
+		if (fa.is_valid()) {
+			// 释放 Godot 文件句柄，这会自动关闭文件
+			fa->flush();
+			fa.unref(); 
 		}
 
-		file_type = nullptr;
 		return SUCCEEDED;
 	}
+
 
 	PackedByteArray GIFWriter::get_output_buffer() const {
 		return mem_output_data;
 	}
 
 	GIFWriter::GIFError GIFWriter::set_canvas_size(const int p_width, const int p_height, const int p_background_color) {
-		if (!file_type) return NO_FILE_OPEN;
-		if (has_screen_desc) return HAS_SCRN_DSCR;
+		if (!file_type) {
+			return NO_FILE_OPEN;
+		}
+		if (has_screen_desc) {
+			return HAS_SCRN_DSCR;
+		}
 
 		const int clamped_width = CLAMP(p_width, 1, 65535);
 		const int clamped_height = CLAMP(p_height, 1, 65535);
@@ -147,9 +156,10 @@ namespace godot {
 		
 		if (err == GIF_OK) {
 			has_screen_desc = true;
+			return SUCCEEDED;
+		} else {
+			return WRITER_FAILED;
 		}
-		
-		return static_cast<GIFError>(err);
 	}
 
 	GIFWriter::GIFError GIFWriter::set_loop_count(const int p_loop_count) {
@@ -306,12 +316,18 @@ namespace godot {
 	}
 
 	GIFWriter::GIFError GIFWriter::write_frame_pixels(const PackedByteArray& p_indices) {
-		if (!file_type) return NO_FILE_OPEN;
-		if (!has_screen_desc) return NO_SCRN_DSCR;
+		if (!file_type) {
+			return NO_FILE_OPEN;
+		}
+		if (!has_screen_desc) {
+			return NO_SCRN_DSCR;
+		}
 
 		// 检查数据大小
 		int expected_size = frame_width * frame_height;
-		if (p_indices.size() < expected_size) return DATA_TOO_BIG;
+		if (p_indices.size() < expected_size) {
+			return DATA_TOO_BIG;
+		}
 
 		// 写入 GCB (图形控制块)
 		GraphicsControlBlock gcb;
@@ -365,31 +381,25 @@ namespace godot {
 		PackedByteArray indices;
 		indices.resize(img_width * img_height);
 
-		if (p_quantize && !file_type->SColorMap && !frame_color_map) {
-			// 需要量化颜色
-			int color_count = 256;
-			ColorMapObject* output_map = GifMakeMapObject(color_count, nullptr);
-			if (!output_map) return NOT_ENOUGH_MEM;
-
-			// 使用 giflib 的量化函数
-			// 注意：这是简化实现，实际应该使用更复杂的量化算法
-			PackedColorArray palette;
-			palette.resize(color_count);
-			
-			// 简单的颜色量化：获取图像中的主要颜色
-			PackedByteArray pixels = img_rgb->get_data();
-			for (int i = 0; i < color_count && i * 3 < pixels.size(); i++) {
-				palette[i] = Color(pixels[i * 3] / 255.0f, pixels[i * 3 + 1] / 255.0f, pixels[i * 3 + 2] / 255.0f);
+		// 如果没有调色板，创建一个默认的灰度调色板作为局部调色板
+		if (!frame_color_map && !file_type->SColorMap) {
+			PackedColorArray default_palette;
+			default_palette.resize(256);
+			for (int i = 0; i < 256; i++) {
+				float g = i / 255.0f;
+				default_palette[i] = Color(g, g, g);
 			}
-			
-			// 设置量化后的调色板为局部调色板
-			set_frame_palette(palette);
-			GifFreeMapObject(output_map);
+			GIFError err = set_frame_palette(default_palette);
+			if (err != SUCCEEDED) return err;
 		}
 
 		// 将图像数据映射到调色板索引
 		PackedByteArray pixels = img_rgb->get_data();
 		int bpp = img_rgb->get_format() == Image::FORMAT_RGBA8 ? 4 : 3;
+		
+		// 获取使用的调色板
+		ColorMapObject* cmap = frame_color_map ? frame_color_map : file_type->SColorMap;
+		int color_count = cmap ? cmap->ColorCount : 256;
 		
 		for (int y = 0; y < img_height; y++) {
 			for (int x = 0; x < img_width; x++) {
@@ -402,9 +412,8 @@ namespace godot {
 				int best_index = 0;
 				int best_dist = 999999;
 				
-				ColorMapObject* cmap = frame_color_map ? frame_color_map : file_type->SColorMap;
 				if (cmap) {
-					for (int i = 0; i < cmap->ColorCount; i++) {
+					for (int i = 0; i < color_count; i++) {
 						int dr = r - cmap->Colors[i].Red;
 						int dg = g - cmap->Colors[i].Green;
 						int db = b - cmap->Colors[i].Blue;
@@ -415,7 +424,7 @@ namespace godot {
 						}
 					}
 				} else {
-					// 无调色板，使用灰度（映射到 0-255）
+					// 无调色板，使用灰度
 					best_index = (r + g + b) / 3;
 				}
 				
@@ -451,41 +460,59 @@ namespace godot {
 		const int p_loop_count,
 		const bool p_quantize
 	) {
-		if (!file_type) return NO_FILE_OPEN;
-		if (!has_screen_desc) return NO_SCRN_DSCR;
-		if (p_images.is_empty()) return DATA_TOO_BIG;
+		if (!file_type) {
+			return NO_FILE_OPEN;
+		}
+		if (!has_screen_desc) {
+			return NO_SCRN_DSCR;
+		}
+		if (p_images.is_empty()) {
+			return DATA_TOO_BIG;
+		}
 
 		int frame_count = p_images.size();
 
 		// 设置循环次数
 		if (p_loop_count >= 0) {
 			GIFError err = set_loop_count(p_loop_count);
-			if (err != SUCCEEDED) return err;
+			if (err != SUCCEEDED) {
+				return err;
+			}
 		}
 
 		// 写入每一帧
 		for (int i = 0; i < frame_count; i++) {
 			Ref<Image> img = p_images[i];
-			if (img.is_null()) continue;
+			if (img.is_null()) {
+				continue;
+			}
 
 			// 获取延迟
 			int delay = (i < p_delays.size()) ? p_delays[i] : 100;
 
 			// 开始帧
 			GIFError err = begin_frame(0, 0, img->get_width(), img->get_height(), false);
-			if (err != SUCCEEDED) return err;
+			if (err != SUCCEEDED) {
+				return err;
+			}
 
 			// 设置延迟
 			err = set_frame_delay(delay);
-			if (err != SUCCEEDED) return err;
+			if (err != SUCCEEDED) {
+				return err;
+			}
 
 			// 写入图像
 			err = write_frame_image(img, p_quantize);
-			if (err != SUCCEEDED) return err;
+			if (err != SUCCEEDED) {
+				return err;
+			}
 
 			// 结束帧
 			err = end_frame();
-			if (err != SUCCEEDED) return err;
+			if (err != SUCCEEDED) {
+				return err;
+			}
 		}
 
 		return SUCCEEDED;
