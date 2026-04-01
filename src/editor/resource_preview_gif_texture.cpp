@@ -34,9 +34,9 @@ namespace godot {
 
 		Vector2i img_size = img->get_size();
 		if (img_size.x > p_size.x || img_size.y > p_size.y) {
-			float scale = MIN((float)p_size.x / img_size.x, (float)p_size.y / img_size.y);
+			float scale = MIN(static_cast<float>(p_size.x) / img_size.x, static_cast<float>(p_size.y) / img_size.y);
 			img = img->duplicate();
-			img->resize(MAX(1, (int)(img_size.x * scale)), MAX(1, (int)(img_size.y * scale)), Image::INTERPOLATE_BILINEAR);
+			img->resize(MAX(1, static_cast<int>(img_size.x * scale)), MAX(1, static_cast<int>(img_size.y * scale)), Image::INTERPOLATE_BILINEAR);
 		}
 
 		return ImageTexture::create_from_image(img);
