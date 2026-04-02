@@ -109,12 +109,16 @@ namespace godot {
 				case STRETCH_KEEP_ASPECT_CENTERED:
 				case STRETCH_KEEP_ASPECT: {
 					size = get_size();
-					int tex_width = texture->get_width() * size.height / texture->get_height();
+					int tex_w = texture->get_width();
+					int tex_h = texture->get_height();
+					if (tex_w == 0 || tex_h == 0) break;
+					
+					int tex_width = tex_w * size.height / tex_h;
 					int tex_height = size.height;
 
 					if (tex_width > size.width) {
 						tex_width = size.width;
-						tex_height = texture->get_height() * tex_width / texture->get_width();
+						tex_height = tex_h * tex_width / tex_w;
 					}
 
 					if (stretch_mode == STRETCH_KEEP_ASPECT_CENTERED) {
@@ -129,8 +133,12 @@ namespace godot {
 					size = get_size();
 
 					Size2 tex_size = texture->get_size();
+					if (tex_size.width == 0.0f || tex_size.height == 0.0f) break;
+					
 					Size2 scale_size(size.width / tex_size.width, size.height / tex_size.height);
 					float scale = scale_size.width > scale_size.height ? scale_size.width : scale_size.height;
+					if (scale == 0.0f) break;
+					
 					Size2 scaled_tex_size = tex_size * scale;
 
 					region.position = ((scaled_tex_size - size) / scale).abs() / 2.0f;
@@ -185,18 +193,22 @@ namespace godot {
 				return Size2();
 			} break;
 			case EXPAND_FIT_WIDTH: {
-				return Size2(get_size().y, 0);
+				// 返回 GIF 固有宽度作为最小宽度，高度由父容器决定
+				return Size2(gif->get_width(), 0);
 			} break;
 			case EXPAND_FIT_WIDTH_PROPORTIONAL: {
-				real_t ratio = real_t(gif->get_width()) / gif->get_height();
-				return Size2(get_size().y * ratio, 0);
+				// 返回 GIF 固有尺寸作为最小尺寸
+				// 避免使用 get_size() 防止与父容器形成循环依赖
+				return gif->get_size();
 			} break;
 			case EXPAND_FIT_HEIGHT: {
-				return Size2(0, get_size().x);
+				// 返回 GIF 固有高度作为最小高度，宽度由父容器决定
+				return Size2(0, gif->get_height());
 			} break;
 			case EXPAND_FIT_HEIGHT_PROPORTIONAL: {
-				real_t ratio = real_t(gif->get_height()) / gif->get_width();
-				return Size2(0, get_size().x * ratio);
+				// 返回 GIF 固有尺寸作为最小尺寸
+				// 避免使用 get_size() 防止与父容器形成循环依赖
+				return gif->get_size();
 			} break;
 			}
 		}
