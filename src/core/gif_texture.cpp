@@ -6,6 +6,9 @@
 
 namespace godot {
 	void GIFTexture::_bind_methods() {
+		ClassDB::bind_static_method("GIFTexture", D_METHOD("load_from_file", "path"), &GIFTexture::load_from_file);
+		ClassDB::bind_static_method("GIFTexture", D_METHOD("load_from_buffer", "buffer"), &GIFTexture::load_from_buffer);
+
 		ClassDB::bind_method(D_METHOD("set_data", "data"), &GIFTexture::set_data);
 		ClassDB::bind_method(D_METHOD("get_data"), &GIFTexture::get_data);
 		ADD_PROPERTY(PropertyInfo(Variant::PACKED_BYTE_ARRAY, "data",
